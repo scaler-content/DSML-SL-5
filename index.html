@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ensembles post read</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F2FB; --surface:#FFFFFF; --surface-2:#EFE8F8; --ink:#22123A; --muted:#5B4A78;
+  --accent:#4A2A82; --btn-bg:#3A1F68; --gold:#E7B416; --gold-ink:#7A5A00; --gold-soft:#FBF0C8;
+  --line:#D9CDEB; --on-gold:#2A1600; --good:#1E6B45; --good-soft:#DDF3E7; --bad:#9B2242; --bad-soft:#FBE1E8;
+  --hero:#2A1548; --hero-2:#3A1F68; --shadow:0 1px 0 rgba(58,31,104,.06), 0 8px 24px -12px rgba(58,31,104,.25);
+  --head:"Bricolage Grotesque","Segoe UI",system-ui,-apple-system,sans-serif;
+  --body:"Literata",Georgia,"Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#140A24; --surface:#1E1033; --surface-2:#2A1748; --ink:#F2EBFF; --muted:#BBAAD9;
+    --accent:#B79CF0; --btn-bg:#6B3FC0; --gold:#F5C842; --gold-ink:#F5C842; --gold-soft:#3A2C0C;
+    --line:#3D2A60; --good:#6FE0A5; --good-soft:#12352A; --bad:#FF9BB5; --bad-soft:#40172A;
+    --shadow:0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#140A24; --surface:#1E1033; --surface-2:#2A1748; --ink:#F2EBFF; --muted:#BBAAD9;
+  --accent:#B79CF0; --btn-bg:#6B3FC0; --gold:#F5C842; --gold-ink:#F5C842; --gold-soft:#3A2C0C;
+  --line:#3D2A60; --good:#6FE0A5; --good-soft:#12352A; --bad:#FF9BB5; --bad-soft:#40172A;
+  --shadow:0 8px 24px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.7;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--head);line-height:1.15;margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px}
+code{font-family:var(--mono);font-size:.86em;background:var(--surface-2);padding:.1em .38em;border-radius:5px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* progress + top bar */
+#progress{position:fixed;top:0;left:0;height:4px;width:0;background:var(--gold);z-index:60}
+.topbar{position:fixed;right:14px;top:14px;z-index:55}
+.theme-btn{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:.4rem .8rem;font:600 .8rem var(--head);cursor:pointer;box-shadow:var(--shadow)}
+
+/* hero */
+.hero{background:var(--hero);color:#F3EBFF;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:8px;background:#F2C230}
+.hero-in{max-width:1180px;margin:0 auto;padding:84px 24px 76px;display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:end}
+.hero h1{font-size:clamp(2.6rem,7vw,5rem);font-weight:800;color:#F2C230;letter-spacing:-.02em}
+.hero .dek{font-size:1.2rem;color:#D9C9F5;max-width:34ch;margin:18px 0 0}
+.ticket{background:#3A1F68;border:1px solid #5A3A96;border-left:6px solid #F2C230;border-radius:12px;padding:20px 22px;font-size:.98rem;line-height:1.6}
+.ticket b.t{display:block;font-family:var(--head);color:#F2C230;margin-bottom:6px;font-size:1rem}
+.ticket p{margin:0;color:#EADFFB}
+@media(max-width:860px){.hero-in{grid-template-columns:1fr;padding-top:76px}}
+
+/* layout */
+.layout{max-width:1180px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:56px}
+nav.toc{position:sticky;top:0;align-self:start;padding:28px 0;height:100vh;overflow:auto}
+nav.toc h2{font-size:.95rem;color:var(--muted);margin-bottom:10px;font-weight:700}
+nav.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+nav.toc a{display:block;padding:6px 12px;margin-left:-2px;border-left:2px solid transparent;text-decoration:none;color:var(--muted);font:600 .9rem/1.3 var(--head)}
+nav.toc a:hover{color:var(--ink)}
+nav.toc a.on{color:var(--ink);border-left-color:var(--gold);background:linear-gradient(90deg,var(--gold-soft),transparent)}
+@media(max-width:1000px){
+  .layout{grid-template-columns:1fr;gap:0;padding:0 16px}
+  nav.toc{position:sticky;height:auto;padding:0;background:var(--bg);z-index:40;border-bottom:1px solid var(--line);margin:0 -16px;padding:0 16px}
+  nav.toc h2{display:none}
+  nav.toc ol{display:flex;overflow-x:auto;border-left:0;gap:4px;padding:8px 0;scrollbar-width:thin}
+  nav.toc a{white-space:nowrap;border:1px solid var(--line);border-radius:999px;margin:0;padding:6px 12px;background:var(--surface)}
+  nav.toc a.on{background:var(--gold);color:var(--on-gold);border-color:var(--gold)}
+  html{scroll-padding-top:64px}
+}
+main{padding:56px 0 40px;min-width:0}
+section{margin-bottom:88px}
+section>h2{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:800;color:var(--ink);letter-spacing:-.015em;padding-bottom:14px;margin-bottom:22px;background:linear-gradient(var(--gold),var(--gold)) left bottom/72px 5px no-repeat}
+h3{font-size:1.35rem;font-weight:700;margin:36px 0 10px}
+p{margin:0 0 1.05em;max-width:68ch}
+.lead{font-size:1.12rem}
+ul,ol{max-width:68ch}
+li{margin-bottom:.4em}
+
+/* components */
+.callout{background:var(--gold-soft);border-left:5px solid var(--gold);padding:16px 20px;border-radius:0 12px 12px 0;margin:22px 0;max-width:72ch}
+.callout p:last-child{margin-bottom:0}
+.callout strong.k{font-family:var(--head)}
+.pull{font-family:var(--head);font-size:1.3rem;font-weight:700;line-height:1.35;border-left:5px solid var(--accent);padding:4px 0 4px 20px;margin:26px 0;max-width:36ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin:28px 0;overflow:hidden}
+.panel>header{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;padding:14px 20px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.panel>header h4{font-size:1.05rem;font-weight:700}
+.panel>header span{font:500 .85rem var(--body);color:var(--muted)}
+.panel .body{padding:20px}
+.note{font-size:.88rem;color:var(--muted);margin:12px 0 0;max-width:none}
+.btn{background:var(--btn-bg);color:#fff;border:2px solid transparent;border-radius:9px;padding:.55rem 1.05rem;font:700 .92rem var(--head);cursor:pointer}
+.btn:hover{filter:brightness(1.12)}
+.btn.gold{background:var(--gold);color:var(--on-gold)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost[aria-pressed="true"]{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px}
+.stat{background:var(--surface-2);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font:800 1.5rem var(--head);color:var(--ink)}
+.stat span{font-size:.84rem;color:var(--muted);line-height:1.3;display:block}
+.stat.gold{background:var(--gold-soft);box-shadow:inset 0 0 0 2px var(--gold)}
+.tbl{width:100%;border-collapse:collapse;font-size:.95rem;margin:14px 0}
+.tbl th{background:var(--btn-bg);color:#fff;text-align:left;font:700 .9rem var(--head);padding:10px 12px}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;background:var(--surface)}
+.tbl td:first-child{font-weight:600}
+.scroll{overflow-x:auto;border-radius:10px}
+.chart{width:100%;height:auto;display:block}
+.chart text{font-family:var(--head);fill:var(--ink)}
+.chart .muted{fill:var(--muted)}
+.chart .axis{stroke:var(--line);stroke-width:1}
+.tabs [role=tablist]{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tabs [role=tab]{font:700 .92rem var(--head);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:.5rem .95rem;border-radius:999px;cursor:pointer}
+.tabs [role=tab][aria-selected=true]{background:var(--gold);border-color:var(--gold);color:var(--on-gold)}
+.tabs [role=tabpanel]{animation:fade .25s ease}
+@keyframes fade{from{opacity:.2}to{opacity:1}}
+.flow text{font-family:var(--head);font-size:13px;font-weight:600;fill:var(--ink)}
+.flow .sm{font-size:11.5px;font-weight:500;fill:var(--muted)}
+.flow .bx{fill:var(--surface);stroke:var(--accent);stroke-width:1.8}
+.flow .bx.g{fill:var(--gold-soft);stroke:var(--gold-ink)}
+.flow .bx.d{fill:var(--btn-bg);stroke:var(--btn-bg)}
+.flow text.w{fill:#fff}
+.flow .ar{stroke:var(--muted);stroke-width:1.8;fill:none}
+
+/* code */
+details.code{margin:18px 0;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+details.code>summary{cursor:pointer;padding:12px 16px;font:700 .95rem var(--head);list-style:none;display:flex;justify-content:space-between;gap:12px}
+details.code>summary::after{content:"+";font-size:1.2rem;color:var(--gold-ink)}
+details.code[open]>summary::after{content:"\2212"}
+details.code pre{margin:0;padding:16px;background:#1D0F33;color:#EADFFB;overflow-x:auto;font:.84rem/1.6 var(--mono)}
+details.code pre.out{background:#2A1548;color:#F2C230;border-top:1px solid #4A2A82}
+details.code .cap{padding:8px 16px;font-size:.8rem;color:var(--muted);background:var(--surface-2);font-family:var(--head);font-weight:600}
+
+/* bootstrap tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:8px}
+.tile{position:relative;border-radius:10px;padding:8px 4px 6px;text-align:center;background:var(--btn-bg);color:#fff;font:700 .95rem var(--head);min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.tile small{font:600 .68rem var(--head);opacity:.9}
+.tile.out{background:transparent;color:var(--muted);border:2px dashed var(--gold-ink)}
+.tile.multi{background:var(--gold);color:var(--on-gold)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.85rem;color:var(--muted);margin:12px 0 0}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px}
+.bar{height:16px;border-radius:8px;background:var(--surface-2);position:relative;margin-top:8px;overflow:visible}
+.bar>div{height:100%;border-radius:8px;background:var(--gold)}
+.bar>u{position:absolute;top:-6px;bottom:-6px;width:0;border-left:3px dashed var(--accent);text-decoration:none}
+
+/* forest cells */
+.trees{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tree{background:var(--surface-2);border-radius:12px;padding:10px}
+.tree h5{margin:0 0 6px;font:700 .8rem var(--head);color:var(--muted)}
+.cells{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+.cells span{aspect-ratio:1;border-radius:4px;display:grid;place-items:center;font:700 .68rem var(--head);border:1.5px dashed var(--line);color:var(--muted);background:transparent}
+.cells span.on{background:var(--btn-bg);border:1.5px solid var(--btn-bg);color:#fff}
+.cells span.pick{background:var(--gold);border:2px solid var(--gold-ink);color:var(--on-gold)}
+.tally{display:grid;gap:6px;margin-top:16px}
+.tally div{display:grid;grid-template-columns:120px 1fr 32px;gap:10px;align-items:center;font:600 .85rem var(--head)}
+.tally .tb{height:14px;border-radius:7px;background:var(--surface-2)}
+.tally .tb i{display:block;height:100%;border-radius:7px;background:var(--gold)}
+input[type=range]{accent-color:var(--btn-bg);width:200px}
+label.f{font:600 .9rem var(--head)}
+
+/* OOB matrix */
+.oob{border-collapse:separate;border-spacing:4px;font:600 .85rem var(--head);width:100%;max-width:640px}
+.oob th{color:var(--muted);font-weight:600;padding:2px 4px;text-align:center}
+.oob th.rowh{text-align:left}
+.oob button.rh{width:100%;text-align:left;font:700 .85rem var(--head);background:var(--surface-2);color:var(--ink);border:2px solid transparent;border-radius:8px;padding:7px 8px;cursor:pointer}
+.oob button.rh[aria-pressed=true]{border-color:var(--gold);background:var(--gold-soft)}
+.oob td{text-align:center;border-radius:8px;height:38px;min-width:38px}
+.oob td.in{background:var(--btn-bg);color:#fff}
+.oob td.o{border:2px dashed var(--gold-ink);color:var(--ink)}
+.oob tr.sel td.o{background:var(--gold);color:var(--on-gold);border-style:solid}
+.oob tr:not(.sel).dim td{opacity:.75}
+.verdict{margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--surface-2);font-size:.98rem}
+.verdict b{font-family:var(--head)}
+
+/* calculator */
+.calc-rows{display:grid;gap:8px}
+.calc-row{display:grid;grid-template-columns:minmax(0,1fr) 92px 40px;gap:8px;align-items:center}
+.calc-row input{font:600 .95rem var(--mono);padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
+.calc-row button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;height:38px;cursor:pointer;font-weight:700}
+.eq{font:600 1.05rem var(--mono);background:var(--surface-2);padding:14px;border-radius:12px;margin-top:16px;line-height:1.9;overflow-x:auto}
+.eq b{color:var(--gold-ink);font-size:1.25em}
+
+/* quiz */
+.quiz{background:var(--surface);border:2px solid var(--gold);border-radius:16px;padding:20px 22px;margin:34px 0;max-width:760px}
+.quiz .qh{font:700 .85rem var(--head);color:var(--gold-ink);margin-bottom:6px}
+.quiz .qt{font:700 1.15rem/1.4 var(--head);margin:0 0 14px}
+.quiz .opts{display:grid;gap:8px}
+.quiz .opt{text-align:left;font:600 1rem/1.4 var(--body);padding:12px 14px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;display:flex;gap:10px}
+.quiz .opt:hover:not(:disabled){border-color:var(--accent)}
+.quiz .opt .mk{font:800 1rem var(--head);width:1.2em;flex:none}
+.quiz .opt.right{border-color:var(--good);background:var(--good-soft)}
+.quiz .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.quiz .opt:disabled{cursor:default}
+.quiz .fb{margin-top:14px;font-size:.98rem}
+.quiz .fb b{font-family:var(--head)}
+
+/* tooltip */
+#tip{position:fixed;z-index:80;pointer-events:none;background:#22123A;color:#fff;border:1px solid #F2C230;border-radius:8px;padding:6px 10px;font:600 .82rem var(--head);opacity:0;transition:opacity .12s;max-width:240px}
+#tip.show{opacity:1}
+[data-tip]{cursor:default}
+
+/* summary */
+.sum details{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.sum summary{cursor:pointer;padding:14px 18px;font:700 1.02rem var(--head);list-style:none;display:flex;justify-content:space-between;gap:10px}
+.sum summary::after{content:"+";color:var(--gold-ink);font-size:1.3rem;line-height:1}
+.sum details[open] summary::after{content:"\2212"}
+.sum details>div{padding:0 18px 16px}
+.sum details p{margin:0}
+.reply{background:var(--hero);color:#EADFFB;border-radius:16px;padding:26px 28px;border-left:8px solid #F2C230;max-width:760px}
+.reply h3{margin:0 0 10px;color:#F2C230}
+.reply p{margin:0;max-width:none}
+.next{margin-top:26px;border:2px dashed var(--accent);border-radius:16px;padding:20px 24px;max-width:760px}
+.next h3{margin:0 0 6px}
+.next p{margin:0}
+footer{background:var(--hero);color:#D9C9F5;text-align:center;padding:34px 20px;border-top:8px solid #F2C230;font-family:var(--head);font-weight:700;font-size:1.05rem}
+footer span{color:#F2C230}
+</style>
+</head>
+<body>
+<div id="progress" aria-hidden="true"></div>
+<div class="topbar"><button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle light or dark theme">Theme</button></div>
+<div id="tip" role="tooltip"></div>
+
+<header class="hero">
+  <div class="hero-in">
+    <div>
+      <h1>Ensembles post read</h1>
+      <p class="dek">Why one decision tree can't be trusted, and how a crowd of them can.</p>
+    </div>
+    <aside class="ticket" aria-label="The problem this read solves">
+      <b class="t">The problem: Finzo, a digital-first neobank</b>
+      <p>As a data scientist on Finzo's Risk &amp; Analytics team, your first ticket comes from the Head of HR: <em>"A colleague put together a decision tree on our attrition data, and it looks reasonable, but when she reran it on a slightly different batch of employee records, the splits moved around. Different runs give different trees. Before this goes anywhere near a company-wide rollout, I need something I can trust to give consistent answers."</em></p>
+    </aside>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="toc" aria-label="Sections">
+  <h2>In this read</h2>
+  <ol id="tocList">
+    <li><a href="#crowd">The wisdom of crowds</a></li>
+    <li><a href="#unstable">One unstable tree</a></li>
+    <li><a href="#bagging">Bagging</a></li>
+    <li><a href="#forest">Random Forest</a></li>
+    <li><a href="#oob">Out-of-bag score</a></li>
+    <li><a href="#variance">Measuring variance</a></li>
+    <li><a href="#tuning">Building &amp; tuning</a></li>
+    <li><a href="#importance">Feature importance</a></li>
+    <li><a href="#summary">Summary</a></li>
+  </ol>
+</nav>
+
+<main id="main">
+
+<!-- ============ CROWD ============ -->
+<section id="crowd">
+  <h2>What is an ensemble?</h2>
+  <p class="lead">Ask five different colleagues to estimate how many riders Orbit Express will need next month and you will get five different numbers. <strong>Average those five guesses</strong> and the result is often more accurate than any single person's guess. That is the "wisdom of the crowd", and it is the core idea behind every ensemble method.</p>
+  <p class="pull">Combine several models, none of which needs to be perfect on its own, so that the combined prediction is more accurate and more stable than any single one.</p>
+
+  <h3>The families of ensembles</h3>
+  <p>Ensemble methods differ in how the models are trained and how their outputs are combined. Pick a family to see its shape.</p>
+
+  <div class="panel">
+    <header><h4>Ensemble families explorer</h4><span>Select a family</span></header>
+    <div class="body tabs" id="familyTabs"></div>
+  </div>
+  <p class="note" style="max-width:68ch">The lesson names four main families: Bagging, Boosting, Stacking and Voting. Its overview table also lists Cascading as a further staged approach. This read is entirely about <strong>Bagging</strong>, because it directly solves the instability problem HR flagged. Boosting is a separate topic that builds on these ideas.</p>
+
+  <div class="quiz" data-q="0"></div>
+</section>
+
+<!-- ============ UNSTABLE ============ -->
+<section id="unstable">
+  <h2>Just how unstable is one tree?</h2>
+  <p class="lead">Rather than take HR's complaint on faith, reproduce it. Train the same tree structure (<code>max_depth=4</code>) on ten different random resamples of the same training data, and watch how much the test accuracy moves.</p>
+
+  <div class="panel">
+    <header><h4>Test accuracy of 10 single trees</h4><span>Hover or focus a bar for its value</span></header>
+    <div class="body">
+      <svg id="treeChart" class="chart" viewBox="0 0 680 340" role="img" aria-labelledby="tc-t tc-d"></svg>
+      <p class="note">The vertical axis starts at 0.70 so that the differences are visible. Each bar is one resample (seed 0 to 9); every tree used the same settings.</p>
+      <div class="statgrid">
+        <div class="stat"><b>0.772</b><span>Mean test accuracy</span></div>
+        <div class="stat gold"><b>0.026</b><span>Standard deviation across the ten trees</span></div>
+        <div class="stat"><b>0.736 &ndash; 0.837</b><span>Lowest to highest score</span></div>
+      </div>
+    </div>
+  </div>
+
+  <p>That spread is exactly what HR is worried about: the <em>same</em> model, trained on slightly different samples of the <em>same</em> data, gives noticeably different answers. This is <strong>high variance</strong> in action, one of the two core problems in the bias-variance trade-off. The problem is real, so now it needs fixing.</p>
+
+  <details class="code">
+    <summary>View the experiment code and output</summary>
+<pre><code>from sklearn.tree import DecisionTreeClassifier
+
+single_tree_scores = []
+
+for seed in range(10):
+    # Resample the training rows, with replacement, to simulate "a slightly different batch"
+    sample = X_train.sample(frac=1.0, replace=True, random_state=seed)
+    y_sample = y_train.loc[sample.index] if hasattr(y_train, 'loc') else y_train[sample.index]
+
+    tree_clf = DecisionTreeClassifier(random_state=7, max_depth=4)
+    tree_clf.fit(sample, y_sample)
+    single_tree_scores.append(tree_clf.score(X_test, y_test))
+
+print('Test accuracy across 10 differently-sampled single trees:')
+print(np.round(single_tree_scores, 3))
+print('\nMean :', round(np.mean(single_tree_scores), 3))
+print('Std  :', round(np.std(single_tree_scores), 3))</code></pre>
+<pre class="out"><code>Test accuracy across 10 differently-sampled single trees:
+[0.837 0.766 0.755 0.755 0.793 0.758 0.736 0.78  0.766 0.774]
+
+Mean : 0.772
+Std  : 0.026</code></pre>
+  </details>
+</section>
+
+<!-- ============ BAGGING ============ -->
+<section id="bagging">
+  <h2>Bagging: Bootstrap Aggregating</h2>
+  <p class="lead">The name describes the recipe. Bagging is <strong>B</strong>ootstrap <strong>AGG</strong>regat<strong>ING</strong>.</p>
+  <ol>
+    <li><strong>Bootstrap.</strong> Create many random samples of the training data, each the same size as the original, drawn <strong>with replacement</strong>. The same row can appear more than once in a sample, and some rows will not appear at all.</li>
+    <li><strong>Aggregate.</strong> Train one model independently on each bootstrap sample, then combine their predictions: a <strong>majority vote</strong> for classification, an <strong>average</strong> for regression.</li>
+  </ol>
+
+  <div class="panel">
+    <header><h4>Bagging pipeline</h4><span>Step through the recipe</span></header>
+    <div class="body"><div id="baggingFlow"></div></div>
+  </div>
+
+  <p>Each individual tree still has high variance, exactly like the ones trained above. But because each tree sees a <em>different</em> random sample, their individual mistakes tend to be different too, and averaging cancels much of that noise.</p>
+
+  <h3>Draw a bootstrap sample yourself</h3>
+  <p>Below is a tiny training set of 24 rows. Each draw picks 24 rows <em>with replacement</em>. See which rows are repeated and which are left out.</p>
+  <div class="panel">
+    <header><h4>Bootstrap sampler</h4><span>Illustration on 24 rows</span></header>
+    <div class="body">
+      <div class="row" style="margin-bottom:16px"><button class="btn gold" id="bsDraw" type="button">Draw a new sample</button></div>
+      <div class="tiles" id="bsTiles" aria-live="polite"></div>
+      <div class="legend">
+        <span><i style="background:var(--btn-bg)"></i>Drawn once</span>
+        <span><i style="background:var(--gold)"></i>Drawn 2+ times (badge shows count)</span>
+        <span><i style="border:2px dashed var(--gold-ink)"></i>Left out ("OOB")</span>
+      </div>
+      <div class="statgrid" id="bsStats"></div>
+    </div>
+  </div>
+
+  <h3>Does the share of rows that appear depend on dataset size?</h3>
+  <div class="panel">
+    <header><h4>Fraction of original rows that appear at least once</h4><span>Averages 200 random samples</span></header>
+    <div class="body">
+      <div class="row">
+        <label class="f" for="bsN">Number of rows:</label>
+        <select id="bsN" style="font:600 .95rem var(--head);padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)">
+          <option value="10">10</option><option value="100">100</option><option value="1848" selected>1,848 (this training set)</option>
+        </select>
+        <button class="btn" id="bsRun" type="button">Run simulation</button>
+      </div>
+      <div class="bar" aria-hidden="true"><div id="bsBar" style="width:0"></div><u style="left:63.2%"></u></div>
+      <p class="note" id="bsRes" aria-live="polite">Press <em>Run simulation</em>. The dashed marker is 63.2%.</p>
+    </div>
+  </div>
+  <p>On the real 1,848-row training set, a single bootstrap sample contained <strong>about 63.6%</strong> of the original rows (0.636). The remaining <strong>roughly 37%</strong> are left out for that particular tree. This is not a coincidence, and it turns out to be extremely useful (see the out-of-bag score below).</p>
+
+  <details class="code">
+    <summary>Where does 63% come from?</summary>
+    <div style="padding:14px 18px 6px">
+      <p>In a single draw, a specific row is <em>not</em> picked with probability <code>1 &minus; 1/n</code>. Across <code>n</code> draws, it is never picked with probability <code>(1 &minus; 1/n)<sup>n</sup></code>. As <code>n</code> grows this approaches <code>1/e &asymp; 0.368</code>, so about <code>1 &minus; 0.368 = 0.632</code> of rows appear. The number barely changes with dataset size, which is what the simulator above shows.</p>
+    </div>
+  </details>
+  <details class="code">
+    <summary>View the sampling code and output</summary>
+<pre><code># What does one bootstrap sample actually look like, compared to the original?
+sample = X_train.sample(frac=1.0, replace=True, random_state=0)
+
+fraction_unique_rows = sample.index.nunique() / len(X_train)
+print('Fraction of ORIGINAL rows that appear at least once in this bootstrap sample:',
+      round(fraction_unique_rows, 3))</code></pre>
+<pre class="out"><code>Fraction of ORIGINAL rows that appear at least once in this bootstrap sample: 0.636</code></pre>
+  </details>
+</section>
+
+<!-- ============ FOREST ============ -->
+<section id="forest">
+  <h2>Random Forest: Bagging, plus one more trick</h2>
+  <p class="lead">Plain Bagging of decision trees already helps, but there is a subtle problem. If one feature is by far the strongest predictor (for example <code>MaritalStatus_Single</code>, which dominated feature importance for the single tree), then <strong>almost every</strong> bootstrapped tree will pick it for its very first split anyway.</p>
+  <p>The trees end up looking alike. Averaging similar, correlated models does not reduce variance nearly as much as averaging genuinely different ones.</p>
+  <p><strong>Random Forest</strong> fixes this with one extra layer of randomness: at <strong>each split</strong>, instead of considering every feature, it considers only a random subset of them.</p>
+
+  <div class="scroll"><table class="tbl">
+    <thead><tr><th></th><th>Row sampling</th><th>Feature (column) sampling per split</th></tr></thead>
+    <tbody>
+      <tr><td>Plain Bagging of trees</td><td>Yes (bootstrap)</td><td>No, all features considered every time</td></tr>
+      <tr><td>Random Forest</td><td>Yes (bootstrap)</td><td>Yes, only a random subset considered each time</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="panel">
+    <header><h4>First split of 12 trees: Bagging vs Random Forest</h4><span>Simplified illustration</span></header>
+    <div class="body">
+      <div class="row" style="margin-bottom:8px">
+        <button class="btn ghost" id="modeBag" type="button" aria-pressed="true">Plain Bagging</button>
+        <button class="btn ghost" id="modeRF" type="button" aria-pressed="false">Random Forest</button>
+        <span id="kWrap" style="display:none" class="row">
+          <label class="f" for="kRange">Features considered per split: <b id="kVal">3</b> of 8</label>
+          <input type="range" id="kRange" min="1" max="7" value="3">
+        </span>
+        <button class="btn gold" id="growBtn" type="button">Grow 12 trees</button>
+      </div>
+      <p class="note" style="margin:0 0 14px">Feature 1 is the dominant predictor (<code>MaritalStatus_Single</code>); Features 2 to 8 stand in for the other, weaker features. Each small grid shows a tree's first split: <strong>filled</strong> squares were considered, and the <strong>gold square with a border</strong> is the one chosen. The illustration assumes the strongest feature available always wins the split.</p>
+      <div class="trees" id="treeGrid" aria-live="polite"></div>
+      <div class="statgrid" id="rfStats"></div>
+      <div class="tally" id="rfTally"></div>
+    </div>
+  </div>
+
+  <p>This forces different trees to rely on different features some of the time, which makes them <strong>less correlated</strong> with each other, which in turn makes their averaged prediction more stable.</p>
+
+  <div class="quiz" data-q="1"></div>
+</section>
+
+<!-- ============ OOB ============ -->
+<section id="oob">
+  <h2>The out-of-bag (OOB) score: validation almost for free</h2>
+  <p class="lead">Each bootstrap sample leaves out roughly 37% of the original rows. Those leftover rows for a given tree are that tree's <strong>Out-of-Bag (OOB)</strong> samples. That tree never saw them during training, so they work exactly like a validation set, for free.</p>
+
+  <h3>How the OOB score is calculated</h3>
+  <p>For every single training row:</p>
+  <ol>
+    <li>Find every tree in the forest for which that row was out-of-bag (left out of its bootstrap sample).</li>
+    <li>Get a prediction for that row from <em>only those trees</em>, combined by majority vote.</li>
+    <li>Compare that combined prediction with the row's true label.</li>
+  </ol>
+  <p>Average this across every training row and you get the <strong>OOB score</strong>: an honest estimate of test performance, without setting aside a separate validation set at all.</p>
+
+  <div class="panel">
+    <header><h4>OOB explorer: 7 trees, 8 rows</h4><span>Illustrative data, not the Finzo dataset</span></header>
+    <div class="body">
+      <p class="note" style="margin:0 0 14px">Each column is a tree. A solid square means the row was in that tree's training sample. A dashed cell means the row was left out, and shows what that tree predicts (S = stays, L = leaves). Select a row to see how its OOB vote is formed.</p>
+      <div class="scroll"><table class="oob" id="oobTbl"></table></div>
+      <div class="verdict" id="oobVerdict" aria-live="polite"></div>
+      <div class="row" style="margin-top:14px"><button class="btn ghost" id="oobNew" type="button">Draw a different forest</button></div>
+    </div>
+  </div>
+
+  <div class="quiz" data-q="2"></div>
+
+  <h3>Computing the OOB score in scikit-learn</h3>
+  <p>Setting <code>oob_score=True</code> makes the forest compute it automatically during training.</p>
+  <div class="statgrid" style="max-width:520px">
+    <div class="stat gold"><b>0.867</b><span>OOB score</span></div>
+    <div class="stat"><b>0.837</b><span>Test accuracy</span></div>
+  </div>
+  <p style="margin-top:16px">The OOB score and the real test accuracy should be reasonably close, since both try to estimate the same thing: how well the model does on unseen data. That makes it a handy sanity check whenever you train a Random Forest.</p>
+  <details class="code">
+    <summary>View the code and output</summary>
+<pre><code>from sklearn.ensemble import RandomForestClassifier
+
+rf_oob = RandomForestClassifier(random_state=7, max_depth=4, n_estimators=100, oob_score=True)
+rf_oob.fit(X_train, y_train)
+
+print('OOB score      :', round(rf_oob.oob_score_, 3))
+print('Test accuracy   :', round(rf_oob.score(X_test, y_test), 3))</code></pre>
+<pre class="out"><code>OOB score      : 0.867
+Test accuracy   : 0.837</code></pre>
+  </details>
+</section>
+
+<!-- ============ VARIANCE ============ -->
+<section id="variance">
+  <h2>Does Bagging actually reduce variance?</h2>
+  <p class="lead">Close the loop on the earlier experiment. Instead of ten single trees, train ten Random Forests (each with a different random seed, 100 trees, <code>max_depth=4</code>) and compare the spread of their test accuracies with the single trees.</p>
+
+  <div class="panel">
+    <header><h4>Bagging in action: variance, side by side</h4><span>Hover or focus a dot for its value</span></header>
+    <div class="body">
+      <div class="row" style="margin-bottom:8px">
+        <button class="btn ghost" id="vBox" type="button" aria-pressed="true">Box plot</button>
+        <button class="btn ghost" id="vDots" type="button" aria-pressed="true">Individual runs</button>
+      </div>
+      <svg id="varChart" class="chart" viewBox="0 0 680 400" role="img" aria-labelledby="vc-t vc-d"></svg>
+      <div class="scroll"><table class="tbl" style="max-width:560px">
+        <thead><tr><th></th><th>Mean</th><th>Std</th><th>Range</th></tr></thead>
+        <tbody id="varTbl"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <p>The Random Forest's box is noticeably narrower. Same underlying data, same depth setting per tree, but a visibly smaller spread, and a higher mean. This is Bagging's whole promise made concrete: <strong>lower variance, without a corresponding jump in bias</strong>, because averaging many decorrelated, low-bias trees keeps the low bias while cancelling out much of the individual noise.</p>
+  <div class="callout"><p><strong class="k">Ticket update.</strong> There is now direct evidence that a Random Forest is more stable than a single tree, which is exactly what HR asked for.</p></div>
+
+  <details class="code">
+    <summary>View the code and output</summary>
+<pre><code>forest_scores = []
+
+for seed in range(10):
+    rf_clf = RandomForestClassifier(random_state=seed, max_depth=4, n_estimators=100)
+    rf_clf.fit(X_train, y_train)
+    forest_scores.append(rf_clf.score(X_test, y_test))
+
+print('Test accuracy across 10 differently-seeded Random Forests:')
+print(np.round(forest_scores, 3))
+print('\nMean :', round(np.mean(forest_scores), 3))
+print('Std  :', round(np.std(forest_scores), 3))
+
+plt.boxplot([single_tree_scores, forest_scores], labels=['Single Tree', 'Random Forest'])
+plt.ylabel('Test accuracy')
+plt.title('Bagging in action: variance, side by side')
+plt.show()</code></pre>
+<pre class="out"><code>Test accuracy across 10 differently-seeded Random Forests:
+[0.815 0.818 0.821 0.81  0.826 0.807 0.799 0.837 0.807 0.807]
+
+Mean : 0.815
+Std  : 0.011
+
+For comparison, single trees from Mission 2:
+Mean : 0.772
+Std  : 0.026</code></pre>
+  </details>
+
+  <div class="quiz" data-q="3"></div>
+</section>
+
+<!-- ============ TUNING ============ -->
+<section id="tuning">
+  <h2>Building and tuning a real Random Forest</h2>
+  <p class="lead">Now build the model properly: fit it, cross-validate it, tune its hyperparameters, and see how much it improves on the tuned single tree.</p>
+
+  <h3>Cross-validated performance</h3>
+  <p>With 100 trees at <code>max_depth=4</code> and 10-fold cross-validation:</p>
+  <div class="scroll"><table class="tbl" style="max-width:520px">
+    <thead><tr><th></th><th>Train</th><th>Validation</th></tr></thead>
+    <tbody>
+      <tr><td>Accuracy mean (%)</td><td>88.41</td><td>84.26</td></tr>
+      <tr><td>Accuracy std (%)</td><td>0.45</td><td>5.96</td></tr>
+    </tbody>
+  </table></div>
+  <p>Compare that validation accuracy with the cross-validated single tree at the same depth (around 78%). Combining many trees pushes it several points higher.</p>
+  <details class="code">
+    <summary>View the cross-validation code</summary>
+<pre><code>from sklearn.model_selection import KFold, cross_validate
+
+X = pd.read_pickle('preprocessed_X_sm.pickle')
+y = pd.read_pickle('y_sm.pickle')
+
+rf_clf = RandomForestClassifier(random_state=7, max_depth=4, n_estimators=100)
+
+kfold = KFold(n_splits=10)
+cv_results = cross_validate(rf_clf, X, y, cv=kfold, scoring='accuracy', return_train_score=True)
+
+print(f"K-Fold Accuracy Mean:\n  Train: {cv_results['train_score'].mean()*100:.2f}\n  Validation: {cv_results['test_score'].mean()*100:.2f}")
+print(f"K-Fold Accuracy Std:\n  Train: {cv_results['train_score'].std()*100:.2f}\n  Validation: {cv_results['test_score'].std()*100:.2f}")</code></pre>
+  </details>
+
+  <h3>Random Forest hyperparameters</h3>
+  <p>Most look familiar from the decision tree, since a forest is built from trees. A few are specific to the ensemble itself, and are marked below.</p>
+  <div class="scroll"><table class="tbl">
+    <thead><tr><th>Hyperparameter</th><th>What it controls</th><th>Kind</th></tr></thead>
+    <tbody>
+      <tr><td><code>n_estimators</code></td><td>Number of trees in the forest</td><td>Ensemble-specific</td></tr>
+      <tr><td><code>max_depth</code>, <code>min_samples_split</code>, <code>min_samples_leaf</code>, <code>criterion</code></td><td>Same role as in a single decision tree, applied to each tree in the forest</td><td>Inherited from trees</td></tr>
+      <tr><td><code>max_features</code></td><td>How many features are randomly considered at each split (the "column sampling" described above)</td><td>Ensemble-specific</td></tr>
+      <tr><td><code>bootstrap</code></td><td>Whether row sampling with replacement is used at all (<code>True</code> by default)</td><td>Ensemble-specific</td></tr>
+      <tr><td><code>ccp_alpha</code></td><td>Cost-complexity pruning strength. Similar in spirit to the regularization strength (&lambda;) in logistic regression: higher values prune more aggressively, controlling under- and overfitting</td><td>Inherited from trees</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Full reference: <a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html" target="_blank" rel="noopener">RandomForestClassifier in scikit-learn</a>.</p>
+
+  <h3>Grid search: try every combination</h3>
+  <p><code>GridSearchCV</code> exhaustively tries every combination of the hyperparameter values you supply, evaluating each with cross-validation. It then <strong>refits</strong> the single best combination once more on the full dataset (<code>refit=True</code> by default). That makes the total number of <code>.fit()</code> calls larger than most people expect.</p>
+
+  <div class="panel">
+    <header><h4>Grid search fit-count calculator</h4><span>Edit the counts or load a preset</span></header>
+    <div class="body">
+      <div class="row" style="margin-bottom:14px">
+        <button class="btn ghost" id="preNb" type="button">Notebook grid</button>
+        <button class="btn ghost" id="preQ" type="button">Quiz scenario</button>
+      </div>
+      <div class="calc-rows" id="calcRows"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn ghost" id="calcAdd" type="button">Add hyperparameter</button>
+        <label class="f" for="calcCv">Cross-validation folds:</label>
+        <input id="calcCv" type="number" min="1" max="50" value="3" style="width:76px;font:600 .95rem var(--mono);padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)">
+        <label class="f"><input type="checkbox" id="calcRefit" checked> Refit best model</label>
+      </div>
+      <div class="eq" id="calcOut" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <p>The notebook's grid is <code>n_estimators</code> &times; <code>max_depth</code> &times; <code>criterion</code> &times; <code>bootstrap</code> &times; <code>max_features</code> = 4 &times; 3 &times; 2 &times; 2 &times; 3 = 144 combinations, each cross-validated 3 times, plus one refit: <strong>433 forests</strong> trained in total. It can take a while to run.</p>
+  <details class="code">
+    <summary>View the grid search code and output</summary>
+<pre><code>from sklearn.model_selection import GridSearchCV
+
+params = {
+    'n_estimators': [100, 200, 300, 400],
+    'max_depth': [3, 5, 10],
+    'criterion': ['gini', 'entropy'],
+    'bootstrap': [True, False],
+    'max_features': [8, 9, 10]
+}
+
+grid = GridSearchCV(estimator=RandomForestClassifier(random_state=7),
+                     param_grid=params,
+                     scoring='accuracy',
+                     cv=3,
+                     n_jobs=-1)
+
+grid.fit(X, y)
+
+print('Best params:', grid.best_params_)
+print('Best score :', round(grid.best_score_, 3))</code></pre>
+<pre class="out"><code>Best params: {'bootstrap': True, 'criterion': 'gini', 'max_depth': 10, 'max_features': 8, 'n_estimators': 200}
+Best score : 0.901</code></pre>
+  </details>
+
+  <div class="quiz" data-q="4"></div>
+
+  <h3>Randomized search: sample instead of exhausting</h3>
+  <p>When a hyperparameter is continuous (like <code>ccp_alpha</code>), trying every value is impossible. <code>RandomizedSearchCV</code> instead samples a fixed number of random combinations from distributions you specify. It is often nearly as good as a full grid search for a fraction of the compute.</p>
+  <p>In the notebook, the search starts from the grid search's own best configuration and tunes only <code>ccp_alpha</code> on top of it, sampled uniformly between 0 and 0.4 across 15 iterations with 3-fold cross-validation.</p>
+
+  <div class="scroll"><table class="tbl">
+    <thead><tr><th></th><th>Grid search</th><th>Randomized search</th></tr></thead>
+    <tbody>
+      <tr><td>Strategy</td><td>Tries every combination of listed values</td><td>Samples a fixed number of combinations (<code>n_iter</code>)</td></tr>
+      <tr><td>Continuous values</td><td>Must be discretised by hand</td><td>Can sample from a distribution</td></tr>
+      <tr><td>As hyperparameters grow</td><td>Cost multiplies with every new one</td><td>Scales better; cost is set by <code>n_iter</code></td></tr>
+      <tr><td>Notebook result</td><td>Best score 0.901 (<code>max_depth=10</code>, <code>max_features=8</code>, <code>n_estimators=200</code>, <code>bootstrap=True</code>, <code>criterion='gini'</code>)</td><td>Best <code>ccp_alpha</code> &asymp; 0.0596, best score 0.727</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout"><p>The randomized search's score is a fresh 3-fold cross-validation run, so it is not directly comparable with the grid search's 0.901. A different number here reflects re-running cross-validation on a different configuration search, not a regression in the model.</p></div>
+  <details class="code">
+    <summary>View the randomized search code and output</summary>
+<pre><code>from scipy.stats import uniform
+from sklearn.model_selection import RandomizedSearchCV
+
+params_dist = {'ccp_alpha': uniform(loc=0, scale=0.4)}  # sampled uniformly between 0 and 0.4
+
+# Build directly on top of the grid search's own winner
+best_rf_estimator = RandomForestClassifier(random_state=7, **grid.best_params_)
+
+random_search = RandomizedSearchCV(
+    estimator=best_rf_estimator,
+    param_distributions=params_dist,
+    scoring='accuracy',
+    cv=3,
+    n_iter=15,
+    n_jobs=-1)
+
+random_search.fit(X, y)
+
+print('Best param:', random_search.best_params_)
+print('Best score:', round(random_search.best_score_, 3))</code></pre>
+<pre class="out"><code>Best param: {'ccp_alpha': np.float64(0.05964055378293107)}
+Best score: 0.727</code></pre>
+  </details>
+</section>
+
+<!-- ============ IMPORTANCE ============ -->
+<section id="importance">
+  <h2>Random Forest feature importance</h2>
+  <p class="lead">With the tuned configuration fitted on the full data, a forest reports how much each feature contributed to its splits.</p>
+  <p>Feature importance in a forest is <strong>averaged across every tree</strong>, so it tends to be more stable and trustworthy than a single tree's version, for exactly the same reason the predictions themselves are more stable. Comparing the forest's ranking with the single tree's ranking is a good way to see how much a single tree's explanation can depend on the sample it happened to see.</p>
+  <details class="code">
+    <summary>View the feature importance code</summary>
+<pre><code>best_rf = RandomForestClassifier(random_state=7, **grid.best_params_)
+best_rf.fit(X, y)
+
+importances = best_rf.feature_importances_
+indices = np.argsort(importances)[::-1]
+names = [X.columns[i] for i in indices]
+
+plt.figure(figsize=(15, 6))
+plt.bar(range(X.shape[1]), importances[indices])
+plt.xticks(range(X.shape[1]), names, rotation=90)
+plt.title('Random Forest Feature Importance')
+plt.tight_layout()
+plt.show()</code></pre>
+  </details>
+  <div class="callout"><p><strong class="k">Explaining it in plain language.</strong> A single tree is one person's opinion, shaped by the exact records it saw. A forest is the averaged judgement of many trees, each trained on a different sample, so its answers, and its explanation of what matters, change far less when the data shifts slightly.</p></div>
+
+  <div class="quiz" data-q="5"></div>
+</section>
+
+<!-- ============ SUMMARY ============ -->
+<section id="summary">
+  <h2>Summary</h2>
+  <div class="sum">
+    <details open><summary>Ensembles</summary><div><p>An ensemble combines several models so the group's prediction is more accurate and more stable than any single model. The four main families are Bagging, Boosting, Stacking and Voting.</p></div></details>
+    <details><summary>Bagging</summary><div><p>Bagging (Bootstrap Aggregating) trains many models independently on bootstrap samples, drawn with replacement, and combines them by majority vote or averaging. Any bootstrap sample contains roughly 63% of the original rows; the other roughly 37% are that tree's out-of-bag rows.</p></div></details>
+    <details><summary>Random Forest</summary><div><p>A Random Forest is Bagging of decision trees plus one more layer of randomness: only a random subset of features is considered at each split. This decorrelates the trees and improves how much variance the averaging removes.</p></div></details>
+    <details><summary>The OOB score</summary><div><p>Each tree's own leftover rows act as a built-in validation set, giving an honest performance estimate without setting aside separate validation data.</p></div></details>
+    <details><summary>Measured variance reduction</summary><div><p>Ten single trees on resampled data had a noticeably wider spread of test accuracy (std 0.026, mean 0.772) than ten differently-seeded Random Forests (std 0.011, mean 0.815).</p></div></details>
+    <details><summary>Hyperparameters and tuning</summary><div><p>Random Forest hyperparameters mostly mirror a single decision tree's, plus <code>n_estimators</code>, <code>max_features</code> and <code>bootstrap</code>, which control the ensemble itself. <code>GridSearchCV</code> exhaustively tries every combination; <code>RandomizedSearchCV</code> samples a fixed number of combinations, which scales better as hyperparameters multiply.</p></div></details>
+    <details><summary>Feature importance</summary><div><p>Importance from a forest is averaged across every tree, making it more stable than a single tree's importance.</p></div></details>
+  </div>
+
+  <h3>Reply to the Head of HR</h3>
+  <div class="reply">
+    <h3>Ticket closed</h3>
+    <p>"We replaced the single tree with a Random Forest. We measured the instability you noticed directly, and the forest's spread of results is visibly tighter. It is also more accurate, and just as explainable through feature importance, now averaged across a hundred trees instead of resting on just one."</p>
+  </div>
+
+  <div class="next">
+    <h3>Where this leads</h3>
+    <p>Bagging builds many trees independently and lets them vote. What if, instead, each new tree was built specifically to fix the mistakes of the ones before it? That is the idea behind Boosting.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>&copy; <span>Ensembles post read</span></footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- helpers ---------- */
+function $(s,r){return (r||document).querySelector(s)}
+function el(tag,attrs,html){var e=document.createElement(tag);if(attrs)for(var k in attrs){e.setAttribute(k,attrs[k])}if(html!=null)e.innerHTML=html;return e}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+var NS="http://www.w3.org/2000/svg";
+function svgEl(tag,attrs,text){var e=document.createElementNS(NS,tag);if(attrs)for(var k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;return e}
+
+/* theme */
+var root=document.documentElement,tb=$("#themeBtn");
+try{var saved=localStorage.getItem("ens-theme");if(saved)root.setAttribute("data-theme",saved)}catch(e){}
+tb.addEventListener("click",function(){
+  var cur=root.getAttribute("data-theme");
+  var isDark=cur?cur==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;
+  var next=isDark?"light":"dark";root.setAttribute("data-theme",next);
+  try{localStorage.setItem("ens-theme",next)}catch(e){}
+});
+
+/* progress bar + active nav */
+var prog=$("#progress");
+function onScroll(){var h=document.documentElement;var m=h.scrollHeight-h.clientHeight;prog.style.width=(m>0?(h.scrollTop/m)*100:0)+"%"}
+window.addEventListener("scroll",onScroll,{passive:true});onScroll();
+var links=[].slice.call(document.querySelectorAll("#tocList a"));
+var secs=links.map(function(a){return document.getElementById(a.getAttribute("href").slice(1))});
+if("IntersectionObserver" in window){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var i=secs.indexOf(e.target);links.forEach(function(l,j){l.classList.toggle("on",j===i);if(j===i)l.setAttribute("aria-current","true");else l.removeAttribute("aria-current")});
+    if(window.innerWidth<=1000){var a=links[i];if(a&&a.scrollIntoView)a.scrollIntoView({block:"nearest",inline:"center"})}}})},{rootMargin:"-30% 0px -60% 0px"});
+  secs.forEach(function(s){io.observe(s)});
+}
+
+/* tooltip */
+var tip=$("#tip");
+function showTip(t){tip.textContent=t.getAttribute("data-tip");var r=t.getBoundingClientRect();tip.classList.add("show");
+  var w=tip.offsetWidth,x=Math.min(Math.max(8,r.left+r.width/2-w/2),window.innerWidth-w-8);tip.style.left=x+"px";tip.style.top=Math.max(8,r.top-tip.offsetHeight-8)+"px"}
+function hideTip(){tip.classList.remove("show")}
+document.addEventListener("mouseover",function(e){var t=e.target.closest&&e.target.closest("[data-tip]");if(t)showTip(t)});
+document.addEventListener("mouseout",function(e){var t=e.target.closest&&e.target.closest("[data-tip]");if(t)hideTip()});
+document.addEventListener("focusin",function(e){var t=e.target.closest&&e.target.closest("[data-tip]");if(t)showTip(t)});
+document.addEventListener("focusout",hideTip);
+
+/* ---------- tabs ---------- */
+function makeTabs(container,items,idp){
+  var list=el("div",{role:"tablist","aria-label":"Options"});var panels=[];
+  items.forEach(function(it,i){
+    var b=el("button",{role:"tab",id:idp+"-t"+i,"aria-controls":idp+"-p"+i,"aria-selected":i===0?"true":"false",tabindex:i===0?"0":"-1",type:"button"},it.label);
+    list.appendChild(b);
+    var p=el("div",{role:"tabpanel",id:idp+"-p"+i,"aria-labelledby":idp+"-t"+i});p.innerHTML=it.html;if(i!==0)p.hidden=true;panels.push(p);
+    b.addEventListener("click",function(){sel(i)});
+    b.addEventListener("keydown",function(e){var n=null;if(e.key==="ArrowRight")n=(i+1)%items.length;if(e.key==="ArrowLeft")n=(i-1+items.length)%items.length;if(e.key==="Home")n=0;if(e.key==="End")n=items.length-1;if(n!==null){e.preventDefault();sel(n);list.children[n].focus()}});
+  });
+  function sel(k){[].forEach.call(list.children,function(b,j){b.setAttribute("aria-selected",j===k?"true":"false");b.tabIndex=j===k?0:-1});panels.forEach(function(p,j){p.hidden=j!==k})}
+  container.appendChild(list);panels.forEach(function(p){container.appendChild(p)});
+}
+
+/* ---------- flow diagrams ---------- */
+function flowSvg(id,w,h,parts,desc){
+  return '<svg class="flow chart" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="'+desc+'"><defs><marker id="ah-'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>'+parts.replace(/#AH/g,'url(#ah-'+id+')')+'</svg>';
+}
+function bx(x,y,w,h,lines,cls){
+  var s='<rect class="bx '+(cls||"")+'" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="10"/>';
+  var tc=cls==="d"?"w":"";
+  lines.forEach(function(t,i){var yy=y+h/2+(i-(lines.length-1)/2)*16+4.5;s+='<text class="'+tc+(i>0?" sm":"")+'" x="'+(x+w/2)+'" y="'+yy+'" text-anchor="middle"'+(i>0&&cls==="d"?' style="fill:#E5D8FA"':"")+'>'+t+'</text>'});
+  return s;
+}
+function ar(x1,y1,x2,y2){return '<line class="ar" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" marker-end="#AH"/>'}
+function lab(x,y,t){return '<text class="sm" x="'+x+'" y="'+y+'" text-anchor="middle">'+t+'</text>'}
+
+var fams=[
+ {label:"Bagging",desc:"Train many models independently, in parallel, on different random samples of the data, then average or vote.",
+  svg:flowSvg("bag",640,230,
+   bx(10,90,110,50,["Training data"],"g")+
+   bx(200,12,150,46,["Model 1","sample A"])+bx(200,92,150,46,["Model 2","sample B"])+bx(200,172,150,46,["Model 3","sample C"])+
+   bx(460,90,170,50,["Vote / average","final prediction"],"d")+
+   ar(120,112,198,36)+ar(120,115,198,115)+ar(120,118,198,194)+ar(350,36,458,108)+ar(350,115,458,115)+ar(350,194,458,122)+
+   lab(275,84,"in parallel"),"Training data is resampled three ways; three models train in parallel; their outputs are combined by vote or average.")},
+ {label:"Boosting",desc:"Train models one after another, where each new model focuses on fixing the previous one's mistakes.",
+  svg:flowSvg("boo",640,170,
+   bx(10,60,160,50,["Model 1","learns the data"])+bx(240,60,160,50,["Model 2","focuses on Model 1's errors"])+bx(470,60,160,50,["Model 3","focuses on remaining errors"])+
+   ar(170,85,238,85)+ar(400,85,468,85)+lab(204,52,"mistakes")+lab(434,52,"mistakes")+
+   '<text x="320" y="146" text-anchor="middle" class="sm">Sequential: each stage depends on the one before it</text>',"Three models in sequence, each correcting the previous model's errors.")},
+ {label:"Stacking",desc:"Train several different types of models, then train a small meta-model that learns how to best combine their outputs.",
+  svg:flowSvg("sta",640,230,
+   bx(10,12,150,46,["Model type A"])+bx(10,92,150,46,["Model type B"])+bx(10,172,150,46,["Model type C"])+
+   bx(250,90,150,50,["Meta-model","learns how to combine"],"g")+bx(490,90,140,50,["Final","prediction"],"d")+
+   ar(160,36,248,108)+ar(160,115,248,115)+ar(160,194,248,122)+ar(400,115,488,115)+lab(205,84,"outputs"),"Different model types feed their outputs into a meta-model that produces the final prediction.")},
+ {label:"Voting",desc:"Train a handful of different models and combine their predictions with a simple vote or average, with no separate meta-model.",
+  svg:flowSvg("vot",640,230,
+   bx(10,12,150,46,["Model A"])+bx(10,92,150,46,["Model B"])+bx(10,172,150,46,["Model C"])+
+   bx(290,90,170,50,["Simple vote / average","no meta-model"],"d")+bx(520,90,110,50,["Prediction"],"g")+
+   ar(160,36,288,108)+ar(160,115,288,115)+ar(160,194,288,122)+ar(460,115,518,115),"Different models are combined by a simple vote or average with no meta-model.")},
+ {label:"Cascading",desc:"Train models sequentially in stages, where the predictions or confidence scores of one stage are fed as extra features into the next stage to progressively refine difficult cases.",
+  svg:flowSvg("cas",640,170,
+   bx(10,60,150,50,["Stage 1","first pass"])+bx(245,60,150,50,["Stage 2","refines hard cases"])+bx(480,60,150,50,["Stage 3","refines further"],"g")+
+   ar(160,85,243,85)+ar(395,85,478,85)+lab(202,50,"predictions +")+lab(202,64,"confidence")+lab(437,50,"predictions +")+lab(437,64,"confidence")+
+   '<text x="320" y="146" text-anchor="middle" class="sm">Each stage receives the previous stage\'s outputs as extra features</text>',"Three stages in sequence, each receiving the previous stage's predictions and confidence as extra features.")}
+];
+makeTabs($("#familyTabs"),fams.map(function(f){return {label:f.label,html:'<p style="margin:0 0 12px;max-width:none">'+f.desc+'</p><div class="scroll">'+f.svg+'</div>'}}),"fam");
+
+/* Bagging pipeline stepper */
+(function(){
+  var steps=[
+   {t:"1. Start with the training data",d:"One training set of n rows.",svg:
+    bx(20,60,140,50,["Training set","n rows"],"g")},
+   {t:"2. Bootstrap: resample with replacement",d:"Create many samples, each the same size as the original. Some rows repeat; some are missing.",svg:
+    bx(20,60,120,50,["Training set"],"g")+bx(230,10,150,44,["Sample 1","n rows"])+bx(230,76,150,44,["Sample 2","n rows"])+bx(230,142,150,44,["Sample 3","n rows"])+
+    ar(140,80,228,34)+ar(140,85,228,98)+ar(140,90,228,164)},
+   {t:"3. Train one model per sample, independently",d:"Each tree sees a different sample, so each makes different mistakes.",svg:
+    bx(20,10,130,44,["Sample 1"])+bx(20,76,130,44,["Sample 2"])+bx(20,142,130,44,["Sample 3"])+
+    bx(240,10,150,44,["Tree 1"],"g")+bx(240,76,150,44,["Tree 2"],"g")+bx(240,142,150,44,["Tree 3"],"g")+
+    ar(150,32,238,32)+ar(150,98,238,98)+ar(150,164,238,164)},
+   {t:"4. Aggregate the predictions",d:"Majority vote for classification, average for regression. Independent errors tend to cancel.",svg:
+    bx(20,10,110,44,["Tree 1"],"g")+bx(20,76,110,44,["Tree 2"],"g")+bx(20,142,110,44,["Tree 3"],"g")+
+    bx(260,76,150,44,["Vote / average"],"d")+bx(480,76,140,44,["Final prediction"],"g")+
+    ar(130,32,258,90)+ar(130,98,258,98)+ar(130,164,258,106)+ar(410,98,478,98)}
+  ];
+  var host=$("#baggingFlow"),cur=0;
+  var out=el("div");var nav=el("div",{"class":"row",style:"margin-top:12px"});
+  var prev=el("button",{"class":"btn ghost",type:"button"},"Previous"),next=el("button",{"class":"btn gold",type:"button"},"Next step");
+  nav.appendChild(prev);nav.appendChild(next);host.appendChild(out);host.appendChild(nav);
+  function r(){var s=steps[cur];out.innerHTML='<h5 style="font:700 1.1rem var(--head);margin:0 0 4px">'+s.t+'</h5><p style="margin:0 0 8px;max-width:none">'+s.d+'</p><div class="scroll">'+flowSvg("bp"+cur,640,196,s.svg,s.t)+'</div>';prev.disabled=cur===0;prev.style.opacity=cur===0?.5:1;next.textContent=cur===steps.length-1?"Restart":"Next step"}
+  prev.addEventListener("click",function(){if(cur>0){cur--;r()}});
+  next.addEventListener("click",function(){cur=(cur+1)%steps.length;r()});r();
+})();
+
+/* ---------- instability bar chart ---------- */
+var singles=[0.837,0.766,0.755,0.755,0.793,0.758,0.736,0.78,0.766,0.774];
+var forests=[0.815,0.818,0.821,0.81,0.826,0.807,0.799,0.837,0.807,0.807];
+(function(){
+  var s=$("#treeChart");
+  s.appendChild(svgEl("title",{id:"tc-t"},"Test accuracy of ten single decision trees"));
+  s.appendChild(svgEl("desc",{id:"tc-d"},"Bar chart of ten test accuracies: 0.837, 0.766, 0.755, 0.755, 0.793, 0.758, 0.736, 0.78, 0.766 and 0.774. Mean 0.772, standard deviation 0.026."));
+  var L=60,R=20,T=20,B=48,W=680,H=340,ymin=.70,ymax=.86;
+  function y(v){return T+(H-T-B)*(1-(v-ymin)/(ymax-ymin))}
+  for(var v=ymin;v<=ymax+1e-9;v+=.04){var yy=y(v);s.appendChild(svgEl("line",{x1:L,x2:W-R,y1:yy,y2:yy,"class":"axis"}));s.appendChild(svgEl("text",{x:L-8,y:yy+4,"text-anchor":"end","class":"muted","font-size":12},v.toFixed(2)))}
+  var bw=(W-L-R)/10;
+  singles.forEach(function(v,i){
+    var x=L+i*bw+bw*.16,w=bw*.68;
+    var r=svgEl("rect",{x:x,y:y(v),width:w,height:y(ymin)-y(v),rx:4,fill:"var(--accent)",tabindex:0,"data-tip":"Seed "+i+": "+v.toFixed(3),"aria-label":"Seed "+i+", accuracy "+v.toFixed(3)});
+    s.appendChild(r);
+    s.appendChild(svgEl("text",{x:x+w/2,y:y(v)-6,"text-anchor":"middle","font-size":12,"font-weight":700},v.toFixed(3)));
+    s.appendChild(svgEl("text",{x:x+w/2,y:H-B+18,"text-anchor":"middle","class":"muted","font-size":12},String(i)));
+  });
+  s.appendChild(svgEl("text",{x:(L+W-R)/2,y:H-8,"text-anchor":"middle","class":"muted","font-size":12},"Resample seed"));
+  s.appendChild(svgEl("text",{x:14,y:(T+H-B)/2,"text-anchor":"middle","class":"muted","font-size":12,transform:"rotate(-90 14 "+((T+H-B)/2)+")"},"Test accuracy"));
+  var m=y(.772);
+  s.appendChild(svgEl("line",{x1:L,x2:W-R,y1:m,y2:m,stroke:"var(--gold)","stroke-width":3,"stroke-dasharray":"8 5"}));
+  var lb=svgEl("text",{x:W-R-4,y:m-8,"text-anchor":"end","font-size":12,"font-weight":800,fill:"var(--gold-ink)",style:"fill:var(--gold-ink)"},"Mean 0.772");s.appendChild(lb);
+})();
+
+/* ---------- bootstrap sampler ---------- */
+(function(){
+  var N=24,tiles=$("#bsTiles"),stats=$("#bsStats");
+  function draw(){
+    var c=new Array(N).fill(0);for(var i=0;i<N;i++)c[Math.floor(Math.random()*N)]++;
+    tiles.innerHTML="";var uniq=0,rep=0;
+    c.forEach(function(n,i){
+      var d=el("div",{"class":"tile"+(n===0?" out":n>1?" multi":""),"aria-label":"Row "+(i+1)+(n===0?", left out":", drawn "+n+" time"+(n>1?"s":""))});
+      d.innerHTML=(i+1)+"<small>"+(n===0?"left out":n>1?"\u00D7"+n:"in")+"</small>";tiles.appendChild(d);
+      if(n>0)uniq++;if(n>1)rep++;
+    });
+    stats.innerHTML='<div class="stat"><b>'+uniq+' of '+N+'</b><span>Distinct rows in the sample</span></div><div class="stat gold"><b>'+Math.round(uniq/N*100)+'%</b><span>Fraction of original rows that appear</span></div><div class="stat"><b>'+(N-uniq)+'</b><span>Rows left out (out-of-bag)</span></div><div class="stat"><b>'+rep+'</b><span>Rows drawn more than once</span></div>';
+  }
+  $("#bsDraw").addEventListener("click",draw);draw();
+  $("#bsRun").addEventListener("click",function(){
+    var n=+$("#bsN").value,trials=200,tot=0;
+    for(var t=0;t<trials;t++){var seen=new Uint8Array(n),u=0;for(var i=0;i<n;i++){var k=Math.floor(Math.random()*n);if(!seen[k]){seen[k]=1;u++}}tot+=u/n}
+    var m=tot/trials;$("#bsBar").style.width=(m*100)+"%";
+    $("#bsRes").innerHTML="With <b>"+n.toLocaleString()+"</b> rows, on average <b>"+(m*100).toFixed(1)+"%</b> of rows appear in a bootstrap sample and <b>"+((1-m)*100).toFixed(1)+"%</b> are left out. The limit for large datasets is 63.2%.";
+  });
+})();
+
+/* ---------- forest split explorer ---------- */
+(function(){
+  var F=8,mode="bag",k=3,grid=$("#treeGrid"),stats=$("#rfStats"),tally=$("#rfTally");
+  function grow(){
+    var picks=[],trees=[];
+    for(var t=0;t<12;t++){
+      var cand=[];
+      if(mode==="bag"){for(var i=0;i<F;i++)cand.push(i)}
+      else{var idx=[];for(var j=0;j<F;j++)idx.push(j);for(var a=F-1;a>0;a--){var b=Math.floor(Math.random()*(a+1));var tmp=idx[a];idx[a]=idx[b];idx[b]=tmp}cand=idx.slice(0,k).sort(function(x,y){return x-y})}
+      var pick=cand.indexOf(0)>=0?0:cand[Math.floor(Math.random()*cand.length)];
+      trees.push({cand:cand,pick:pick});picks.push(pick);
+    }
+    grid.innerHTML="";
+    trees.forEach(function(tr,i){
+      var d=el("div",{"class":"tree"});d.appendChild(el("h5",null,"Tree "+(i+1)+": split on Feature "+(tr.pick+1)));
+      var c=el("div",{"class":"cells","aria-label":"Tree "+(i+1)+" considered features "+tr.cand.map(function(x){return x+1}).join(", ")+"; chose feature "+(tr.pick+1)});
+      for(var f=0;f<F;f++){var sp=el("span",{"class":tr.pick===f?"pick":tr.cand.indexOf(f)>=0?"on":""},String(f+1));c.appendChild(sp)}
+      d.appendChild(c);grid.appendChild(d);
+    });
+    var cnt=new Array(F).fill(0);picks.forEach(function(p){cnt[p]++});
+    var distinct=cnt.filter(function(c){return c>0}).length;
+    stats.innerHTML='<div class="stat gold"><b>'+cnt[0]+' of 12</b><span>Trees whose first split used Feature 1 (the dominant predictor)</span></div><div class="stat"><b>'+distinct+'</b><span>Different features used for the first split</span></div>';
+    tally.innerHTML="";
+    for(var f=0;f<F;f++){tally.appendChild(el("div",null,'<span>Feature '+(f+1)+(f===0?" (strongest)":"")+'</span><span class="tb"><i style="width:'+(cnt[f]/12*100)+'%"></i></span><span>'+cnt[f]+'</span>'))}
+  }
+  function setMode(m){mode=m;$("#modeBag").setAttribute("aria-pressed",m==="bag");$("#modeRF").setAttribute("aria-pressed",m==="rf");$("#kWrap").style.display=m==="rf"?"flex":"none";grow()}
+  $("#modeBag").addEventListener("click",function(){setMode("bag")});
+  $("#modeRF").addEventListener("click",function(){setMode("rf")});
+  $("#kRange").addEventListener("input",function(){k=+this.value;$("#kVal").textContent=k;if(mode==="rf")grow()});
+  $("#growBtn").addEventListener("click",grow);grow();
+})();
+
+/* ---------- OOB explorer ---------- */
+(function(){
+  var R=8,T=7,seed=11,selRow=0,data;
+  function build(){
+    var rnd=mulberry(seed),truth=[],inb=[],pred=[];
+    for(var r=0;r<R;r++){truth.push(rnd()<.5?"S":"L");inb.push([]);pred.push([])}
+    for(var t=0;t<T;t++){var used=new Array(R).fill(false);for(var i=0;i<R;i++)used[Math.floor(rnd()*R)]=true;for(var r=0;r<R;r++)inb[r].push(used[r])}
+    for(var r=0;r<R;r++){
+      var o=[];for(var t=0;t<T;t++)if(!inb[r][t])o.push(t);
+      if(o.length===0){inb[r][0]=false;o=[0]}
+      if(o.length%2===0){inb[r][o[0]]=true;o.shift()}
+      for(var t=0;t<T;t++){var ok=rnd()<.72;pred[r].push(ok?truth[r]:(truth[r]==="S"?"L":"S"))}
+    }
+    return {truth:truth,inb:inb,pred:pred};
+  }
+  function render(){
+    var tbl=$("#oobTbl");tbl.innerHTML="";
+    var hr='<tr><th class="rowh" scope="col">Row</th>';for(var t=0;t<T;t++)hr+='<th scope="col">Tree '+(t+1)+'</th>';hr+='<th scope="col">True</th></tr>';
+    tbl.innerHTML=hr;
+    var correct=0;
+    for(var r=0;r<R;r++){
+      var votes={S:0,L:0};for(var t=0;t<T;t++)if(!data.inb[r][t])votes[data.pred[r][t]]++;
+      var maj=votes.S>votes.L?"S":"L";if(maj===data.truth[r])correct++;
+      var tr=el("tr",{"class":r===selRow?"sel":"dim"});
+      var th=el("th",{"class":"rowh",scope:"row"});var b=el("button",{"class":"rh",type:"button","aria-pressed":r===selRow?"true":"false"},"Row "+(r+1));(function(rr){b.addEventListener("click",function(){selRow=rr;render()})})(r);th.appendChild(b);tr.appendChild(th);
+      for(var t=0;t<T;t++){var td=el("td",{"class":data.inb[r][t]?"in":"o","aria-label":data.inb[r][t]?"in training sample":"left out, predicts "+(data.pred[r][t]==="S"?"stays":"leaves")});td.textContent=data.inb[r][t]?"\u25A0":data.pred[r][t];tr.appendChild(td)}
+      tr.appendChild(el("td",{style:"font-weight:800"},data.truth[r]));tbl.appendChild(tr);
+    }
+    var r=selRow,oo=[];for(var t=0;t<T;t++)if(!data.inb[r][t])oo.push(t);
+    var v={S:0,L:0};oo.forEach(function(t){v[data.pred[r][t]]++});var maj=v.S>v.L?"S":"L";
+    var name={S:"Stays",L:"Leaves"};
+    $("#oobVerdict").innerHTML="<b>Row "+(r+1)+"</b> was left out by "+(oo.length===1?"tree ":"trees ")+oo.map(function(t){return t+1}).join(", ")+". Only their votes count: "+v.S+" for Stays, "+v.L+" for Leaves, so the OOB prediction is <b>"+name[maj]+"</b>. True label: <b>"+name[data.truth[r]]+"</b> "+(maj===data.truth[r]?"(\u2713 correct)":"(\u2717 incorrect)")+".<br><br><b>OOB score for this forest:</b> "+correct+" of "+R+" rows correct = "+Math.round(correct/R*100)+"%.";
+  }
+  data=build();render();
+  $("#oobNew").addEventListener("click",function(){seed+=7;selRow=0;data=build();render()});
+})();
+
+/* ---------- variance box plot ---------- */
+(function(){
+  function q(a,p){var s=a.slice().sort(function(x,y){return x-y}),pos=(s.length-1)*p,lo=Math.floor(pos),hi=Math.ceil(pos);return s[lo]+(s[hi]-s[lo])*(pos-lo)}
+  function summary(a){var q1=q(a,.25),q3=q(a,.75),iqr=q3-q1,lo=q1-1.5*iqr,hi=q3+1.5*iqr,s=a.slice().sort(function(x,y){return x-y});
+    var inside=s.filter(function(v){return v>=lo&&v<=hi});return {q1:q1,med:q(a,.5),q3:q3,wl:inside[0],wh:inside[inside.length-1],fl:s.filter(function(v){return v<lo||v>hi}),min:s[0],max:s[s.length-1]}}
+  var svg=$("#varChart"),showBox=true,showDots=true;
+  var groups=[{name:"Single tree",data:singles,mean:"0.772",sd:"0.026",cls:"var(--accent)"},{name:"Random Forest",data:forests,mean:"0.815",sd:"0.011",cls:"var(--gold)"}];
+  function draw(){
+    svg.innerHTML="";
+    svg.appendChild(svgEl("title",{id:"vc-t"},"Box plot of test accuracy: single trees versus Random Forests"));
+    svg.appendChild(svgEl("desc",{id:"vc-d"},"Single trees: mean 0.772, std 0.026, range 0.736 to 0.837. Random Forests: mean 0.815, std 0.011, range 0.799 to 0.837. The forest's spread is narrower."));
+    var W=680,H=400,L=64,T=20,B=52,ymin=.72,ymax=.85;
+    function y(v){return T+(H-T-B)*(1-(v-ymin)/(ymax-ymin))}
+    for(var v=ymin;v<=ymax+1e-9;v+=.02){var yy=y(v);svg.appendChild(svgEl("line",{x1:L,x2:W-20,y1:yy,y2:yy,"class":"axis"}));svg.appendChild(svgEl("text",{x:L-8,y:yy+4,"text-anchor":"end","class":"muted","font-size":12},v.toFixed(2)))}
+    svg.appendChild(svgEl("text",{x:16,y:(T+H-B)/2,"text-anchor":"middle","class":"muted","font-size":12,transform:"rotate(-90 16 "+((T+H-B)/2)+")"},"Test accuracy"));
+    groups.forEach(function(g,gi){
+      var cx=L+(W-L-20)*(gi===0?.27:.73),bw=110,s=summary(g.data);
+      svg.appendChild(svgEl("text",{x:cx,y:H-22,"text-anchor":"middle","font-size":14,"font-weight":700},g.name));
+      if(showBox){
+        svg.appendChild(svgEl("line",{x1:cx,x2:cx,y1:y(s.wh),y2:y(s.q3),stroke:"var(--ink)","stroke-width":1.6}));
+        svg.appendChild(svgEl("line",{x1:cx,x2:cx,y1:y(s.q1),y2:y(s.wl),stroke:"var(--ink)","stroke-width":1.6}));
+        svg.appendChild(svgEl("line",{x1:cx-18,x2:cx+18,y1:y(s.wh),y2:y(s.wh),stroke:"var(--ink)","stroke-width":1.6}));
+        svg.appendChild(svgEl("line",{x1:cx-18,x2:cx+18,y1:y(s.wl),y2:y(s.wl),stroke:"var(--ink)","stroke-width":1.6}));
+        svg.appendChild(svgEl("rect",{x:cx-bw/2,y:y(s.q3),width:bw,height:Math.max(2,y(s.q1)-y(s.q3)),fill:g.cls,"fill-opacity":.28,stroke:g.cls==="var(--gold)"?"var(--gold-ink)":g.cls,"stroke-width":2.2,rx:4,tabindex:0,"data-tip":g.name+": middle 50% from "+s.q1.toFixed(3)+" to "+s.q3.toFixed(3)+", median "+s.med.toFixed(3),"aria-label":g.name+" box, quartiles "+s.q1.toFixed(3)+" to "+s.q3.toFixed(3)+", median "+s.med.toFixed(3)}));
+        svg.appendChild(svgEl("line",{x1:cx-bw/2,x2:cx+bw/2,y1:y(s.med),y2:y(s.med),stroke:"var(--ink)","stroke-width":3.5}));
+      }
+      if(showDots){
+        var rnd=mulberry(gi+5);
+        g.data.forEach(function(v,i){var jx=(rnd()-.5)*bw*.9;
+          var c=svgEl("circle",{cx:cx+jx+(showBox?0:0),cy:y(v),r:6,fill:g.cls,stroke:"var(--ink)","stroke-width":1.4,tabindex:0,"data-tip":g.name+" run "+i+": "+v.toFixed(3),"aria-label":g.name+" run "+i+", accuracy "+v.toFixed(3)});svg.appendChild(c)});
+      }
+      // range bracket label
+      svg.appendChild(svgEl("text",{x:cx+bw/2+14,y:y(s.max)+4,"font-size":12,"class":"muted"},"max "+s.max.toFixed(3)));
+      svg.appendChild(svgEl("text",{x:cx+bw/2+14,y:y(s.min)+4,"font-size":12,"class":"muted"},"min "+s.min.toFixed(3)));
+    });
+    $("#varTbl").innerHTML=groups.map(function(g){var s=summary(g.data);return "<tr><td>"+g.name+"</td><td>"+g.mean+"</td><td>"+g.sd+"</td><td>"+s.min.toFixed(3)+" \u2013 "+s.max.toFixed(3)+" ("+(s.max-s.min).toFixed(3)+")</td></tr>"}).join("");
+  }
+  $("#vBox").addEventListener("click",function(){showBox=!showBox;this.setAttribute("aria-pressed",showBox);if(!showBox&&!showDots){showDots=true;$("#vDots").setAttribute("aria-pressed","true")}draw()});
+  $("#vDots").addEventListener("click",function(){showDots=!showDots;this.setAttribute("aria-pressed",showDots);if(!showBox&&!showDots){showBox=true;$("#vBox").setAttribute("aria-pressed","true")}draw()});
+  draw();
+})();
+
+/* ---------- grid search calculator ---------- */
+(function(){
+  var rows=[],cv=3,refit=true,host=$("#calcRows");
+  function preset(a,c){rows=a.map(function(x){return {n:x[0],c:x[1]}});cv=c;$("#calcCv").value=c;render()}
+  function render(){
+    host.innerHTML="";
+    rows.forEach(function(r,i){
+      var d=el("div",{"class":"calc-row"});
+      var name=el("input",{type:"text",value:r.n,"aria-label":"Hyperparameter name"});name.addEventListener("input",function(){r.n=this.value});
+      var cnt=el("input",{type:"number",min:1,max:99,value:r.c,"aria-label":"Number of values for "+r.n});cnt.addEventListener("input",function(){r.c=Math.max(1,parseInt(this.value)||1);calc()});
+      var rm=el("button",{type:"button","aria-label":"Remove "+r.n},"\u2715");rm.addEventListener("click",function(){rows.splice(i,1);render()});
+      d.appendChild(name);d.appendChild(cnt);d.appendChild(rm);host.appendChild(d);
+    });calc();
+  }
+  function calc(){
+    var prod=rows.reduce(function(a,r){return a*r.c},1);if(!rows.length)prod=0;
+    var fits=prod*cv,tot=fits+(refit&&prod>0?1:0);
+    var eq=rows.length?rows.map(function(r){return r.c}).join(" \u00D7 ")+" = <b>"+prod+"</b> combinations":"Add at least one hyperparameter";
+    $("#calcOut").innerHTML=eq+"<br>"+prod+" \u00D7 "+cv+" folds = "+fits+" fits"+(refit&&prod>0?"<br>+ 1 refit on the full data":"")+"<br>Total <code>.fit()</code> calls: <b>"+tot.toLocaleString()+"</b>";
+  }
+  $("#calcAdd").addEventListener("click",function(){rows.push({n:"new_param",c:2});render()});
+  $("#calcCv").addEventListener("input",function(){cv=Math.max(1,parseInt(this.value)||1);calc()});
+  $("#calcRefit").addEventListener("change",function(){refit=this.checked;calc()});
+  $("#preNb").addEventListener("click",function(){$("#calcRefit").checked=true;refit=true;preset([["n_estimators",4],["max_depth",3],["criterion",2],["bootstrap",2],["max_features",3]],3)});
+  $("#preQ").addEventListener("click",function(){$("#calcRefit").checked=true;refit=true;preset([["max_depth",3],["min_samples_leaf",4]],10)});
+  preset([["n_estimators",4],["max_depth",3],["criterion",2],["bootstrap",2],["max_features",3]],3);
+})();
+
+/* ---------- quizzes ---------- */
+var QUIZ=[
+ {q:"Which one of these is a type of ensemble learning technique?",o:["Selecting","Collecting","Bagging","Randomizing"],a:2,e:"Bagging (Bootstrap Aggregating) is one of the four main ensemble families, alongside Boosting, Stacking and Voting."},
+ {q:"What is the main reason for introducing row and column sampling in Random Forests?",o:["To decrease the training time of the model","To tackle the problem of overfitting (high variance) in the base learners","To tackle the problem of underfitting (high bias) in the base learners","None of the above"],a:1,e:"Row sampling (bootstrapping) and column sampling both work to decorrelate the individual trees. Less correlated trees average out to lower variance, which is exactly the overfitting problem a single deep tree suffers from."},
+ {q:"A dataset has n rows, and m of these rows (drawn with replacement) are used to train each base learner in a Random Forest. What data does each base learner effectively get validated on?",o:["The complete dataset with all n rows","A part of the same m sampled rows","The rows left out of its own bootstrap sample (its out-of-bag rows)","None of the above"],a:2,e:"Each tree's own leftover, unsampled rows are exactly what make up its out-of-bag set, which is what the OOB score is calculated from."},
+ {q:"What does the target value at a leaf node in a single tree of a Random Forest actually represent?",o:["The final Random Forest prediction","The majority class (or mean, for regression) among training points that reached that leaf, in that one tree","The OOB score for that tree","None of these"],a:1,e:"Each individual tree in the forest still predicts the same way a standalone tree would, using the majority class (or mean) at its own leaves. The forest's final answer only appears after combining every tree's individual prediction by vote or average."},
+ {q:"You run GridSearchCV on a Random Forest with max_depth having 3 values and min_samples_leaf having 4 values, using 10-fold cross-validation, and default settings otherwise. How many times is .fit() called in total?",o:["1440","120","121","30"],a:2,e:"Total combinations = 3 \u00D7 4 = 12. Each combination is fit once per fold during the search, so 12 \u00D7 10 = 120 calls. GridSearchCV defaults to refit=True, which fits the best-scoring combination one more time on the full dataset, bringing the total to 120 + 1 = 121."},
+ {q:"Which of the following is NOT a hyperparameter of a Random Forest?",o:["Number of base learners (n_estimators)","Depth of base learners (max_depth)","Row/column sample size (max_samples / max_features)","The dataset's total number of rows"],a:3,e:"The total number of rows in the dataset is a property of the data itself, not something we tune. Everything else in the list is a genuine Random Forest hyperparameter that controls how the forest is built."}
+];
+document.querySelectorAll(".quiz").forEach(function(box){
+  var d=QUIZ[+box.getAttribute("data-q")],n=+box.getAttribute("data-q")+1;
+  box.setAttribute("role","group");box.setAttribute("aria-label","Check your understanding, question "+n);
+  box.innerHTML='<div class="qh">Check your understanding</div><p class="qt"></p><div class="opts"></div><div class="fb" aria-live="polite"></div>';
+  $(".qt",box).textContent=d.q;
+  var opts=$(".opts",box),fb=$(".fb",box),btns=[];
+  d.o.forEach(function(t,i){
+    var b=el("button",{"class":"opt",type:"button"});b.innerHTML='<span class="mk" aria-hidden="true"></span><span></span>';b.lastChild.textContent=t;
+    b.addEventListener("click",function(){
+      btns.forEach(function(x,j){x.disabled=true;if(j===d.a){x.classList.add("right");x.firstChild.textContent="\u2713"}});
+      if(i!==d.a){b.classList.add("wrong");b.firstChild.textContent="\u2717"}
+      fb.innerHTML=(i===d.a?"<b>Correct.</b> ":"<b>Not quite.</b> The right answer is highlighted. ")+"";
+      var s=document.createElement("span");s.textContent=d.e;fb.appendChild(s);
+      var rt=el("button",{"class":"btn ghost",type:"button",style:"margin-top:12px;display:block"},"Try again");
+      rt.addEventListener("click",function(){btns.forEach(function(x){x.disabled=false;x.className="opt";x.firstChild.textContent=""});fb.innerHTML=""});fb.appendChild(rt);
+    });
+    btns.push(b);opts.appendChild(b);
+  });
+});
+})();
+</script>
+</body>
+</html>
